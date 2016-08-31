@@ -1,0 +1,162 @@
+public class MainActivity extends Activity {
+
+    private Button quanxian,qvxiao,shanchu;
+    private TextView feng;
+    private ListView list;
+    private LinearLayout line1,line2;
+    private ListAdapter adapter;
+    private ArrayList<String> listdate;
+    public static List<Integer> nums = new ArrayList<Integer>();
+    public static List<View> viewList=new ArrayList<View>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        InitView();
+    }
+    private void InitView(){
+        quanxian= (Button) findViewById(R.id.quanxian);
+        qvxiao= (Button) findViewById(R.id.qvxiao);
+        shanchu= (Button) findViewById(R.id.shanchu);
+        feng= (TextView) findViewById(R.id.feng);
+        line1= (LinearLayout) findViewById(R.id.line1);
+        line1.setVisibility(View.GONE);
+        line2= (LinearLayout) findViewById(R.id.line2);
+        line2.setVisibility(View.GONE);
+        list= (ListView) findViewById(R.id.list);
+        getdata();
+        adapter=new ListAdapter(this,listdate);
+        list.setAdapter(adapter);
+        ClickEner();
+    }
+    private void ClickEner(){
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                line1.setVisibility(View.VISIBLE);
+                line2.setVisibility(View.VISIBLE);
+                is = true;
+                click();
+                return true;
+            }
+        });
+
+    }
+    public boolean is=true;
+    public void click() {
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (is) {
+                    iiii(false, view, position);
+                    feng.setText("已选择" + nums.size() + "封");
+                }
+            }
+        });
+        qvxiao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                line1.setVisibility(View.GONE);
+                line2.setVisibility(View.GONE);
+                if (nums.size() > 0) {
+                    for (int i = 0; i < viewList.size(); i++) {
+                        viewList.get(i).setBackgroundResource(R.drawable.list_selector);
+                    }
+                    nums.clear();
+                    viewList.clear();
+                    is = false;
+                }
+                feng.setText("已选择" + nums.size() + "封");
+            }
+        });
+        quanxian.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < listdate.size(); i++) {
+                    nums.add(i);
+                }
+                for (int i = 0; i < nums.size(); i++) {
+                    for (int j = nums.size() - 1; j > i; j--)  //内循环是 外循环一次比较的次数
+                    {
+                        if (nums.get(i) == nums.get(j)) {
+                            nums.remove(j);
+                        }
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                feng.setText("已选择" + nums.size() + "封");
+            }
+        });
+        shanchu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<String> al=new ArrayList<String>();
+                for (int i = 0; i < listdate.size(); i++) {
+                    for (int j = 0; j < nums.size(); j++) {
+                        if (nums.get(j) == i) {
+                            al.add(listdate.get(i));
+                        }
+                    }
+                }
+                listdate.removeAll(al);
+                adapter.notifyDataSetChanged();
+                viewList.clear();
+                nums.clear();
+                feng.setText("已选择" + nums.size() + "封");
+            }
+        });
+    }
+
+    public  void iiii(boolean q,View view,int po){
+        boolean is = isexistsnum(po);
+        if (is){
+            view.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            if (q==true){
+                nums.add(po);
+                viewList.add(view);
+                for (int i = 0; i < nums.size(); i++) {
+                    for (int j = nums.size() - 1 ; j > i; j--)  //内循环是 外循环一次比较的次数
+                    {
+                        if (nums.get(i) == nums.get(j)) {
+                            nums.remove(j);
+                        }
+                    }
+                }
+            }else{
+                nums.add(po);
+                viewList.add(view);
+            }
+        }else{
+            if (q==false) {
+                for (int i = 0; i < nums.size(); i++) {
+                    if (nums.get(i) == po) {
+                        view.setBackgroundResource(R.drawable.list_selector);
+                        nums.remove(nums.get(i));
+                        viewList.remove(viewList.get(i));
+                    }
+                }
+            }
+        }
+    }
+    private void getdata(){
+        listdate=new ArrayList<String>();
+        for (int i=0;i<10;i++){
+            listdate.add("记得"+i);
+        }
+    }
+    /**
+     * 判断po是否在nums集合中
+     *
+     * @param po
+     * @return
+     */
+    public static boolean isexistsnum(int po) {
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums.get(i) == po) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
